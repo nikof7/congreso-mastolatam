@@ -1,0 +1,246 @@
+---
+title: "Ideas congreso masto"
+output: html_document
+date: "2024-08-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(activity)
+library(overlap)
+```
+
+```{r}
+load("datos_procesados_v4.RData")
+
+head(data)
+```
+
+```{r}
+test <- data %>% 
+  filter(sp == "Lgym") %>% 
+  select(solar) %>% 
+  pull()
+test_act <- fitact(test)
+```
+
+
+```{r}
+
+density_values <- test_act@pdf
+
+ggplot(density_values, aes(x = density_values[,"x"], y = density_values[,"y"])) +
+  geom_line(size = 1) +
+  scale_x_continuous(breaks = c(0, pi/2, pi, 3*pi/2, 2*pi), 
+                     labels = c("Night", "Sunrise", "Solar noon", "Sunset", "Night")) +
+  labs(title = "Prueba",
+       x = "Solar Time (Radians)", y = "Density") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.title = element_blank(),
+        legend.position = "top")
+```
+
+
+
+```{r}
+dat_lgym <- data %>% 
+  filter(sp == "Lgym") %>%
+  select(sp, solar, tr_btau_sys)
+
+half_value <- max(dat_lgym$tr_btau_sys) / 2
+
+# Crear una nueva columna 'tr_btau_sys_cat' con las categorías
+dat_lgym$tr_btau_sys_cat <- with(dat_lgym, ifelse(tr_btau_sys == 0, "0",
+                                ifelse(tr_btau_sys < half_value, "< 50%", 
+                                       "> 50%")))
+
+# Verificar el resultado
+print(dat_lgym)
+```
+
+```{r}
+dat_lgym <- data %>% 
+  filter(sp == "Lgym") %>%
+  select(sp, solar, tr_btau_sys)
+
+dat_lgym$tr_btau_sys_cat <- with(dat_lgym, ifelse(tr_btau_sys == 0, "0",
+                                ifelse(tr_btau_sys < half_value, "< 50%", 
+                                       "> 50%")))
+
+half_value <- max(dat_lgym$tr_btau_sys) / 2 # De la totalidad
+
+dat_lgym_0 <- dat_lgym %>% 
+  filter(tr_btau_sys_cat == "0") %>% 
+  select(solar) %>% 
+  pull()
+
+dat_lgym_below_50 <- dat_lgym %>% 
+  filter(tr_btau_sys_cat == "< 50%") %>% 
+  select(solar) %>% 
+  pull()
+
+dat_lgym_above_50 <- dat_lgym %>% 
+  filter(tr_btau_sys_cat == "> 50%") %>% 
+  select(solar) %>% 
+  pull()
+
+
+act_0 <- fitact(dat_lgym_0)
+act_below_50 <- fitact(dat_lgym_below_50)
+act_above_50 <- fitact(dat_lgym_above_50)
+
+
+density_values_0 <- act_0@pdf
+density_values_below_50 <- act_below_50@pdf
+density_values_above_50 <- act_above_50@pdf
+
+density_data <- data.frame(
+  angle = c(density_values_0[,"x"], density_values_below_50[,"x"], density_values_above_50[,"x"]),
+  density = c(density_values_0[,"y"], density_values_below_50[,"y"], density_values_above_50[,"y"]),
+  landscape = rep(c("0", "<50", ">50"), each = length(density_values_0[,"x"]))
+)
+
+
+overlap_0_below50 <- overlapEst(dat_lgym_0, dat_lgym_below_50)
+overlap_below50_below50 <- overlapEst(dat_lgym_0, dat_lgym_above_50)
+overlap_0_above50 <- overlapEst(dat_lgym_above_50, dat_lgym_below_50)
+overlapPlot_0_below50 <- overlapPlot(dat_lgym_0, dat_lgym_below_50)
+```
+
+
+```{r}
+# Crear el gráfico
+
+plot(overlapPlot_0_below50$x,overlapPlot_0_below50$densityB)
+
+ggplot(density_data, aes(x = angle)) +
+  geom_line(aes(y = density, color = landscape), size=1) +
+  scale_x_continuous(breaks = c(0, pi/2, pi, 3*pi/2, 2*pi), 
+                     labels = c("Night", "Sunrise", "Solar noon", "Sunset", "Night")) +
+  labs(title = "Prueba",
+       x = "Solar Time (Radians)", y = "Density") +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.title = element_blank(),
+        legend.position = "top")
+```
+
+¿Qué pasa si hacemos kernels con varias agentes de disturbio?
+
+```{r}
+dat <- data %>% 
+  select(system, sp, solar, tr_btau_sys, tr_cfam_sys, n_tech_sys)
+```
+
+Se busca el valor medio de cada variable
+
+```{r}
+half_value_btau <- max(dat$tr_btau_sys) / 2
+half_value_cfam <- max(dat$tr_cfam_sys) / 2
+half_value_ntech <- max(dat$n_tech_sys) / 2
+```
+
+Y creamos tres nuevas columnas para los datos categóricos
+
+```{r}
+dat$btau_cat <- with(dat, ifelse(tr_btau_sys == 0, "0",
+                                ifelse(tr_btau_sys < half_value_btau, "< 50%", 
+                                       "> 50%")))
+dat$cfam_cat <- with(dat, ifelse(tr_cfam_sys == 0, "0",
+                                ifelse(tr_cfam_sys < half_value_cfam, "< 50%", 
+                                       "> 50%")))
+dat$ntech_cat <- with(dat, ifelse(n_tech_sys == 0, "0",
+                                ifelse(n_tech_sys < half_value_ntech, "< 50%", 
+                                       "> 50%")))
+```
+
+```{r}
+tail(dat)
+```
+
+```{r}
+dat_lgym <- dat %>% 
+  filter(sp == "Lgym")
+
+dat_lgym_0 <- dat_lgym %>% 
+  filter(btau_cat == "0" & cfam_cat == "0" & ntech_cat == "0") %>% 
+  select(solar) %>% 
+  pull()
+
+dat_lgym_below_50 <- dat_lgym %>% 
+  filter(btau_cat == "< 50%" & cfam_cat == "< 50%" & ntech_cat == "< 50%") %>% 
+  select(solar) %>% 
+  pull()
+
+dat_lgym_above_50 <- dat_lgym %>% 
+  filter(btau_cat == "> 50%" & cfam_cat == "> 50%" & ntech_cat == "> 50%") %>% 
+  select(solar) %>% 
+  pull()
+
+
+act_0 <- fitact(dat_lgym_0)
+act_below_50 <- fitact(dat_lgym_below_50)
+act_above_50 <- fitact(dat_lgym_above_50)
+
+
+density_values_0 <- act_0@pdf
+density_values_below_50 <- act_below_50@pdf
+density_values_above_50 <- act_above_50@pdf
+
+density_data <- data.frame(
+  angle = c(density_values_0[,"x"], density_values_below_50[,"x"], density_values_above_50[,"x"]),
+  density = c(density_values_0[,"y"], density_values_below_50[,"y"], density_values_above_50[,"y"]),
+  landscape = rep(c("0", "<50", ">50"), each = length(density_values_0[,"x"]))
+)
+```
+
+
+```{r}
+barplot(height = dat_lgym$ntech_cat)
+
+mi_tabla_larga <- dat_lgym %>% 
+  select(btau_cat, cfam_cat, ntech_cat) %>% 
+  pivot_longer(cols = everything(), names_to = "Column", values_to = "Value")
+
+ggplot(mi_tabla_larga, aes(x = Value, fill = Column)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Frecuencia de Valores por Columna", x = "Valor", y = "Frecuencia") +
+  theme_minimal()
+```
+# Atención
+
+A continuación se toma los datos para Lgym y se grafico con los mismos.
+
+```{r}
+tabla <- data %>% 
+  filter(sp == "Lgym") %>% 
+  select(btau = tr_btau_sys, cfam=tr_cfam_sys, techos=n_tech_sys)
+
+par(mfrow = c(1, 3)) # Para visualizar los 3 histogramas juntos
+hist(tabla$btau, main = "", xlab = "Tasa de registro de Cfam")
+hist(tabla$cfam, main = "", xlab = "Tasa de registro de Cfam")
+hist(tabla$techos, main = "", xlab = "Cantidad de techos")
+```
+
+## Correlación de variables
+
+```{r}
+pairs(tabla, main = "Scatterplot Matrix")
+```
+
+```{r}
+library(reshape2)
+
+corr <- cor(tabla)
+corr_melt <- melt(corr)
+ggplot(corr_melt, aes(x=Var1, y=Var2, fill=value)) + 
+    geom_tile() + 
+    scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                         midpoint = 0, limit = c(-1,1), space = "Lab", 
+                         name="Correlación") +
+    theme_minimal() +
+    coord_fixed()
+```
+Según este procedimiento se puede observar que existe una correlación entre la tasa de registro (tr) de los perros con la tr del ganado vacuno, al igual que entre la cantidad de techos con la tr de perros. No es así con la cantidad de techos y la tr de ganado vacuno.

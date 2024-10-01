@@ -1,0 +1,4 @@
+"0","#pdf(""combined_plots_2_categories.pdf"", width = 20, height = 8)"
+"0","for (i in seq_along(plots)) {"
+"0","  print(plots[[i]])"
+"0","}"

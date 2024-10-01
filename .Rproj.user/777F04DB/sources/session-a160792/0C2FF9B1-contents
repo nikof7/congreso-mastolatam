@@ -1,0 +1,101 @@
+---
+title: "Graficos"
+output: html_document
+date: "2024-10-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+library(activity)
+library(overlap)
+```
+
+```{r}
+load("datos_procesados_v4.RData")
+
+data_categorized <- data %>% 
+  mutate(cat_n_tech_sys = case_when(
+           n_tech_sys == 0 ~ "0",
+           n_tech_sys > 0 ~ "1"
+         ),
+         cat_n_tech_cam = case_when(
+           n_tech_cam == 0 ~ "0",
+           n_tech_cam > 0 ~ "1"
+         ),
+         cat_tr_cfam_sys = case_when(
+           tr_cfam_sys == 0 ~ "0",
+           tr_cfam_sys > 0 ~ "1"
+         ),
+         cat_tr_cfam_cam = case_when(
+           tr_cfam_cam == 0 ~ "0",
+           tr_cfam_cam > 0 ~ "1"
+         ),
+         cat_tr_btau_sys = case_when(
+           tr_btau_sys == 0 ~ "0",
+           tr_btau_sys > 0 ~ "1"
+         ),
+         cat_tr_btau_cam = case_when(
+           tr_btau_cam == 0 ~ "0",
+           tr_btau_cam > 0 ~ "1"
+         )
+  ) %>% 
+  select(site, system, camera, solar, sp, cat_n_tech_cam,cat_n_tech_sys,cat_tr_cfam_cam, cat_tr_cfam_sys, cat_tr_btau_cam,cat_tr_btau_sys)
+head(data_categorized)
+```
+
+Cantidad de registros por categoría y graficar
+
+```{r}
+# Resumir las categorías para n_tech, tr_btau y tr_cfam
+test <- data_categorized %>%
+  group_by(sp) %>% 
+  summarise(across(starts_with("cat"), 
+                   list(Ausente = ~sum(. == "0"), 
+                        Presente = ~sum(. == "1"))))
+head(test)
+```
+
+
+```{r}
+test <- test %>% 
+  ungroup() %>% 
+  pivot_longer(cols = -sp, 
+               names_to = c("category"), 
+               values_to = "count")
+
+# Crear un nuevo campo para la variable
+test <- test %>%
+  mutate(variable = case_when(
+    str_detect(category, "n_tech") ~ "n_tech",
+    str_detect(category, "tr_btau") ~ "tr_btau",
+    str_detect(category, "tr_cfam") ~ "tr_cfam",
+    TRUE ~ NA_character_
+  ))
+
+# Graficar las tres variables en un solo gráfico usando facet_wrap
+ggplot(test, aes(x = factor(sp), y = count, fill = factor(category))) +
+  geom_bar(stat = "identity", position = "fill", color = "white", size = 0.25) +
+  facet_wrap(~variable, scales = "free_y") +  # Crear paneles para cada variable
+  labs(title = "Proporción de Registros",
+       subtitle = "Por especie para cada categoría, contrastando a nivel de sistema y de cámaras",
+       x = "Especies", 
+       y = "Proporción", 
+       fill = "Categoría") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none") +
+   scale_fill_manual(values = rep(c("#a8dadc", "#457b9d"), length.out = length(unique(test$category))))
+```
+
+<span style="background-color: #a8dadc;">Este color es para la presencia del estresor</span> <span style="background-color: #457b9d;color: white;"> y este para la ausencia</span> 
+ Por categría hay "dos graficos" el de arriba es a nivel de camara y abajo a nivel de sistema.
+
+Voy a trabajar a nivel de sistema.
+
+```{r}
+data_categorized <- data_categorized %>% 
+  select(site, system, camera, solar, sp, ends_with("_sys"))
+head(data_categorized)
+```
+
+
+

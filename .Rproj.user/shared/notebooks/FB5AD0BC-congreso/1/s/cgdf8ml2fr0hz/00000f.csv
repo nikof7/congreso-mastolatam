@@ -1,0 +1,3 @@
+"0","half_value_btau <- max(dat$tr_btau_sys) / 2"
+"0","half_value_cfam <- max(dat$tr_cfam_sys) / 2"
+"0","half_value_ntech <- max(dat$n_tech_sys) / 2"

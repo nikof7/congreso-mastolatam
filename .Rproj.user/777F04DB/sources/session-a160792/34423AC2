@@ -1,0 +1,28 @@
+{
+    "id": "34423AC2",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1727805281901.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "id": "54d3e8400e774cb1bb8c31fe17574de3",
+        "name": "datasets[[1]]",
+        "title": "datasets[[1]]",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 0,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1727805281901,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,28 @@
+{
+    "id": "63D3F733",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1727805320668.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "id": "61263774cab94ff8ab0e41a94249b60c",
+        "name": "generalized_density_data$density_tr_cfam_sys[[sp]]",
+        "title": "generalized_density_data$density_tr_cfam_sys[[sp]]",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 734122061611409440,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1727805320668,
+    "read_only": false,
+    "read_only_alternatives": []
+}

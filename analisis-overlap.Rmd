@@ -1,0 +1,33 @@
+
+
+```{r}
+# Crear el dataframe con los datos proporcionados
+overlap_data <- data.frame(
+  sp = c("1Aaxi", "1Mgou", "2Ctho", "2Lgym", "3Dnov", "3Dsep", "4Lgeo", "4Lwie"),
+  overlap_n_tech_Dhat = c(0.865, 0.872, 0.845, 0.847, 0.931, NA, 0.720, 0.831),
+  overlap_tr_cfam_Dhat = c(0.876, 0.844, 0.875, 0.862, 0.852, 0.715, 0.839, NA),
+  overlap_tr_btau_Dhat = c(0.809, 0.797, 0.867, 0.856, 0.916, 0.801, 0.716, 0.756)
+)
+
+# Mostrar el dataframe
+print(overlap_data)
+
+```
+
+
+```{r}
+library(ggplot2)
+
+overlap_long <- reshape2::melt(overlap_data, id.vars = "sp", 
+                               variable.name = "situation", 
+                               value.name = "overlap_value")
+
+
+ggplot(overlap_long, aes(y = overlap_value, group = situation, color = situation)) +
+  geom_boxplot()
+  theme_minimal() +
+  labs(title = "Comparación de overlap por especie",
+       x = "Situación", y = "Valor de overlap")
+
+```
+

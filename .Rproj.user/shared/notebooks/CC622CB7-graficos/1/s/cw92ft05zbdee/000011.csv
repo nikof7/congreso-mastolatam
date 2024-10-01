@@ -1,0 +1,7 @@
+"0","# Resumir las categorías para n_tech, tr_btau y tr_cfam"
+"0","test <- data_categorized %>%"
+"0","  group_by(sp) %>% "
+"0","  summarise(across(starts_with(""cat""), "
+"0","                   list(Ausente = ~sum(. == ""0""), "
+"0","                        Presente = ~sum(. == ""1""))))"
+"0","head(test)"

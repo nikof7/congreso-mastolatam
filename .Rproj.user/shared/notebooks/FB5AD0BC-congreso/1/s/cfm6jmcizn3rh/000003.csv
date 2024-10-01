@@ -1,0 +1,5 @@
+"0","test <- data %>% "
+"0","  filter(sp == ""Lgym"") %>% "
+"0","  select(solar) %>% "
+"0","  pull()"
+"0","test_act <- fitact(test)"

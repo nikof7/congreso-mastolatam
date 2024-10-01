@@ -1,0 +1,2 @@
+"0","load(""datos_procesados_v4.RData"")"
+"0","data <- data %>% filter(sp %in% c(""Ctho"", ""Lgym"", ""Lgeo"", ""Lwie"", ""Dnov"", ""Dsep"", ""Aaxi"", ""Mgou""))"

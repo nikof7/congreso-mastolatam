@@ -1,0 +1,2 @@
+"0","ggsave(filename = paste0(""./plots/"", generalized_density_data[[1]][sp], ""_1"", "".png""), plot =  individual_plots[[1]])"
+"2","[38;5;253mSaving 7 x 7 in image[39m"
