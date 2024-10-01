@@ -163,7 +163,7 @@ for (sp in 1:nrow(generalized_density_data)) {
 
 
 ```{r}
-ggsave(filename = paste0("./plots/", generalized_density_data[[1]][sp], "_1", ".png"), plot =  individual_plots[[1]])
+ggsave(filename = paste0("./plots/", generalized_density_data[[1]][sp], "_1", ".svg"), plot =  individual_plots[[1]])
 ```
 
 
